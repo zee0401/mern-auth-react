@@ -15,20 +15,27 @@ export default function SignUp() {
     try {
       setLoading(true);
       setError(false);
-      const res = await fetch("api/auth/signup", {
+      const response = await fetch("http://localhost:3000/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: formData.Json,
-      }).then(res.json());
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to sign up");
+      }
 
       setLoading(false);
       setError(false);
+      // handle successful signup (e.g., redirect to login page or show success message)
     } catch (error) {
       setError(true);
       setLoading(false);
-      console.log(error);
+      console.log(error.message);
     }
   };
 
