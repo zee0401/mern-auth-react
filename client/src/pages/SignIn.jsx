@@ -6,44 +6,40 @@ import {
   signInFailure,
 } from "../redux/user/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
-// import OAuth from "../components/OAuth";
+import OAuth from "../components/OAuth";
 
 export default function SignIn() {
   const [formData, setFormData] = useState({});
-  const [loading, error] = useSelector((state) => state.user);
+  const { loading, error } = useSelector((state) => state.user);
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-    e.prventDefault();
+    e.preventDefault();
     try {
       dispatch(signInStart());
-      const res = await fetch("http://localhost:3000/api/auth/signin", {
+      const res = await fetch("/api/auth/signin", {
         method: "POST",
-        header: {
+        headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      }).then((res) => res.json());
-      const data = res.data;
-
-      if (!res.ok) {
+      });
+      const data = await res.json();
+      if (data.success === false) {
         dispatch(signInFailure(data));
-        throw new Error(data.message || "Failed to sign up");
+        return;
       }
       dispatch(signInSuccess(data));
       navigate("/");
     } catch (error) {
       dispatch(signInFailure(error));
-      console.log(error);
     }
   };
-
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className="text-3xl text-center font-semibold my-7">Sign In</h1>
@@ -68,7 +64,7 @@ export default function SignIn() {
         >
           {loading ? "Loading..." : "Sign In"}
         </button>
-        {/* <OAuth /> */}
+        <OAuth />
       </form>
       <div className="flex gap-2 mt-5">
         <p>Dont Have an account?</p>
